@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="VTC Bons">
+<title>VTC — Bons de Réservation</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #08080f;
+    --surface: #111118;
+    --surface2: #1a1a24;
+    --border: #2a2a38;
+    --accent: #c9a84c;
+    --accent2: #e8c97a;
+    --text: #f0ede8;
+    --muted: #7a7a8a;
+    --danger: #e05c5c;
+    --success: #5cb85c;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  /* ──── HEADER ──── */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(8,8,15,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+  }
+  .logo span { color: var(--text); font-style: italic; }
+  .header-actions { display: flex; gap: 10px; }
+  .btn-icon {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 0.78rem;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn-icon:active { transform: scale(0.96); }
+  .btn-icon.primary {
+    background: var(--accent);
+    color: #08080f;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* ──── TABS ──── */
+  .tabs {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    gap: 0;
+    overflow-x: auto;
+  }
+  .tab {
+    padding: 12px 16px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ──── VIEWS ──── */
+  .view { display: none; padding: 20px; animation: fadeIn 0.25s ease; }
+  .view.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ──── FORM ──── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1rem;
+    color: var(--accent);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .field { margin-bottom: 14px; }
+  .field:last-child { margin-bottom: 0; }
+  label {
+    display: block;
+    font-size: 0.73rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+  }
+  input::placeholder, textarea::placeholder { color: var(--muted); }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7a8a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 38px; }
+  textarea { resize: vertical; min-height: 70px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* ──── BON NUMBER ──── */
+  .bon-number-display {
+    background: linear-gradient(135deg, var(--surface2), var(--surface));
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 1.1rem;
+    color: var(--accent2);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-align: center;
+  }
+
+  /* ──── TARIF ──── */
+  .tarif-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .tarif-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    color: var(--text);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .tarif-btn.selected { background: rgba(201,168,76,0.15); border-color: var(--accent); color: var(--accent); }
+  .tarif-btn:active { transform: scale(0.97); }
+
+  /* ──── SUBMIT ──── */
+  .btn-submit {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: var(--radius);
+    color: #08080f;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+    margin-top: 8px;
+  }
+  .btn-submit:active { transform: scale(0.98); opacity: 0.9; }
+
+  /* ──── LIST ──── */
+  .list-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .list-title { font-family: 'DM Serif Display', serif; font-size: 1.2rem; }
+  .count-badge {
+    background: var(--accent);
+    color: #08080f;
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .bon-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .bon-card::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--accent);
+  }
+  .bon-card:active { transform: scale(0.99); border-color: var(--accent); }
+  .bon-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .bon-num { font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--accent); font-weight: 500; }
+  .bon-status { font-size: 0.72rem; padding: 3px 9px; border-radius: 20px; font-weight: 600; }
+  .status-confirmed { background: rgba(92,184,92,0.15); color: var(--success); }
+  .status-pending { background: rgba(201,168,76,0.15); color: var(--accent); }
+  .status-cancelled { background: rgba(224,92,92,0.15); color: var(--danger); }
+  .bon-client { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
+  .bon-info { font-size: 0.8rem; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; }
+  .bon-info span { display: flex; align-items: center; gap: 4px; }
+  .bon-price { position: absolute; right: 16px; bottom: 16px; font-family: 'DM Mono', monospace; font-size: 1rem; color: var(--accent2); font-weight: 500; }
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-state div { font-size: 2.5rem; margin-bottom: 12px; }
+  .search-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    width: 100%;
+    margin-bottom: 16px;
+  }
+  .search-bar:focus { outline: none; border-color: var(--accent); }
+
+  /* ──── VUE DÉTAIL ──── */
+  #view-detail {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 300;
+    background: var(--bg);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  #view-detail.active { display: block; }
+  .detail-header {
+    position: sticky; top: 0;
+    background: rgba(8,8,15,0.95);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex; align-items: center; gap: 12px;
+    z-index: 10;
+  }
+  .btn-back {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 1rem;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+  }
+  .detail-body { padding: 20px; }
+  .detail-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; padding-bottom: 40px; }
+  .btn-action {
+    padding: 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+  .btn-action.gold { background: var(--accent); color: #08080f; border-color: var(--accent); }
+  .btn-action.dark { background: var(--surface2); color: var(--text); }
+  .btn-action.red { background: rgba(224,92,92,0.15); color: var(--danger); border-color: var(--danger); grid-column: 1 / -1; }
+  .detail-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .detail-card-title {
+    font-size: 0.72rem; font-weight: 600; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 10px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .detail-row {
+    display: flex; justify-content: space-between;
+    padding: 5px 0; font-size: 0.88rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-row span:first-child { color: var(--muted); }
+  .detail-row span:last-child { font-weight: 600; text-align: right; max-width: 60%; }
+  .detail-total {
+    font-size: 1.1rem; color: var(--accent2);
+    padding-top: 10px; margin-top: 6px;
+    border-top: 1px solid var(--border);
+  }
+  .detail-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem; color: var(--accent2);
+    text-align: center; padding: 10px;
+    background: rgba(201,168,76,0.08);
+    border-radius: 8px; margin-bottom: 16px;
+    letter-spacing: 0.1em;
+  }
+
+  /* ──── STATS ──── */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-val { font-family: 'DM Mono', monospace; font-size: 1.6rem; color: var(--accent2); font-weight: 500; }
+  .stat-label { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+
+  /* ──── TOAST ──── */
+  .toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    border-radius: 30px;
+    padding: 10px 22px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--accent2);
+    z-index: 500;
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; }
+
+  @media print {
+    body > *:not(.print-area) { display: none !important; }
+    .print-area { display: block !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">VTC <span>Réservations</span></div>
+  <div class="header-actions">
+    <button class="btn-icon" onclick="showTab('stats')">📊</button>
+    <button class="btn-icon primary" onclick="showTab('form'); resetForm()">+ Nouveau</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('form')" id="tab-form">✏️ Nouveau bon</button>
+  <button class="tab" onclick="showTab('list')" id="tab-list">📋 Mes bons</button>
+  <button class="tab" onclick="showTab('stats')" id="tab-stats">📊 Statistiques</button>
+</div>
+
+<!-- ═══════ VIEW: FORM ═══════ -->
+<div class="view active" id="view-form">
+
+  <div class="card">
+    <div class="card-title">🔢 Numéro de bon</div>
+    <div class="bon-number-display" id="bon-number-display">VTC-2026-001</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">👤 Client</div>
+    <div class="field">
+      <label>Nom complet *</label>
+      <input type="text" id="f-client" placeholder="M. Dupont Jean" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Téléphone</label>
+      <input type="tel" id="f-phone" placeholder="+33 6 00 00 00 00">
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="f-email" placeholder="client@email.com">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📍 Trajet</div>
+    <div class="field">
+      <label>Adresse de départ *</label>
+      <input type="text" id="f-from" placeholder="15 rue de la Paix, Paris 75001">
+    </div>
+    <div class="field">
+      <label>Adresse d'arrivée *</label>
+      <input type="text" id="f-to" placeholder="Aéroport CDG Terminal 2E">
+    </div>
+    <div style="font-size:0.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;padding-top:4px;border-top:1px solid var(--border);padding-top:12px;">📅 Date & heure de réservation</div>
+    <div class="field row2">
+      <div>
+        <label>Date de commande</label>
+        <input type="date" id="f-bookdate">
+      </div>
+      <div>
+        <label>Heure de commande</label>
+        <input type="time" id="f-booktime">
+      </div>
+    </div>
+    <div style="font-size:0.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;border-top:1px solid var(--border);padding-top:12px;">🚗 Date & heure de la course</div>
+    <div class="field row2">
+      <div>
+        <label>Date de la course *</label>
+        <input type="date" id="f-date">
+      </div>
+      <div>
+        <label>Heure de prise en charge *</label>
+        <input type="time" id="f-time">
+      </div>
+    </div>
+    <div class="field row2">
+      <div>
+        <label>Nb passagers</label>
+        <select id="f-pax">
+          <option>1</option><option>2</option><option>3</option>
+          <option>4</option><option>5</option><option>6</option><option>7</option>
+        </select>
+      </div>
+      <div>
+        <label>Bagages</label>
+        <select id="f-bags">
+          <option value="0">Aucun</option>
+          <option value="1">1 bagage</option>
+          <option value="2">2 bagages</option>
+          <option value="3">3 bagages</option>
+          <option value="4+">4+ bagages</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Vol / Train (facultatif)</label>
+      <input type="text" id="f-flight" placeholder="AF1234 / TGV 6542">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">💶 Tarif & Paiement</div>
+    <div class="field">
+      <label>Type de véhicule</label>
+      <div class="tarif-grid">
+        <button class="tarif-btn selected" onclick="selectVehicle(this,'Berline')">🚗 Berline</button>
+        <button class="tarif-btn" onclick="selectVehicle(this,'Van')">🚐 Van</button>
+        <button class="tarif-btn" onclick="selectVehicle(this,'Premium')">⭐ Premium</button>
+        <button class="tarif-btn" onclick="selectVehicle(this,'Minibus')">🚌 Minibus</button>
+      </div>
+    </div>
+    <div class="field row2">
+      <div>
+        <label>Prix TTC (€) *</label>
+        <input type="number" id="f-price" placeholder="45.00" min="0" step="0.50">
+      </div>
+      <div>
+        <label>Mode de paiement</label>
+        <select id="f-payment">
+          <option>Espèces</option>
+          <option>CB</option>
+          <option>Virement</option>
+          <option>Compte entreprise</option>
+          <option>Application</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🏢 Prestataire de transport</div>
+    <div class="field">
+      <label>Nom / Raison sociale *</label>
+      <input type="text" id="f-driver" placeholder="Ex : VTC Pro Services" oninput="autoSavePrestataire()">
+    </div>
+    <div class="field">
+      <label>Adresse de la société</label>
+      <input type="text" id="f-address" placeholder="15 rue de la Paix, 75001 Paris" oninput="autoSavePrestataire()">
+    </div>
+    <div class="field row2">
+      <div>
+        <label>N° SIREN</label>
+        <input type="text" id="f-siren" placeholder="123 456 789" maxlength="11" oninput="autoSavePrestataire()">
+      </div>
+      <div>
+        <label>N° eVTC</label>
+        <input type="text" id="f-evtc" placeholder="EVTC000000000" oninput="autoSavePrestataire()">
+      </div>
+    </div>
+    <div class="field row2">
+      <div>
+        <label>Téléphone</label>
+        <input type="tel" id="f-driver-phone" placeholder="+33 6 00 00 00 00" oninput="autoSavePrestataire()">
+      </div>
+      <div>
+        <label>Email</label>
+        <input type="email" id="f-driver-email" placeholder="contact@vtc.fr" oninput="autoSavePrestataire()">
+      </div>
+    </div>
+    <div class="field row2">
+      <div>
+        <label>Immatriculation</label>
+        <input type="text" id="f-plate" placeholder="AB-123-CD" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase(); autoSavePrestataire()">
+      </div>
+      <div>
+        <label>Modèle véhicule</label>
+        <input type="text" id="f-carmodel" placeholder="Tesla Model 3" oninput="autoSavePrestataire()">
+      </div>
+    </div>
+    <div class="prestataire-hint" id="prestataire-hint" style="display:none;font-size:0.75rem;color:var(--success);margin-top:8px;">✅ Infos prestataire sauvegardées automatiquement</div>
+  </div>
+
+  <button class="btn-submit" onclick="saveBon()">✅ Créer le bon de réservation</button>
+  <div style="height:30px"></div>
+</div>
+
+<!-- ═══════ VIEW: LIST ═══════ -->
+<div class="view" id="view-list">
+  <div class="list-header">
+    <div class="list-title">Mes bons</div>
+    <span class="count-badge" id="list-count">0</span>
+  </div>
+  <input class="search-bar" type="text" placeholder="🔍 Rechercher un client, lieu…" oninput="filterBons(this.value)">
+  <div id="bon-list"></div>
+</div>
+
+<!-- ═══════ VIEW: STATS ═══════ -->
+<div class="view" id="view-stats">
+  <div class="stats-grid" id="stats-grid">
+    <div class="stat-card"><div class="stat-val" id="s-total">0</div><div class="stat-label">Total bons</div></div>
+    <div class="stat-card"><div class="stat-val" id="s-ca">0€</div><div class="stat-label">Chiffre d'affaires</div></div>
+    <div class="stat-card"><div class="stat-val" id="s-confirmed">0€</div><div class="stat-label">CA moyen / course</div></div>
+    <div class="stat-card"><div class="stat-val" id="s-avg">0€</div><div class="stat-label">Panier moyen</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">📅 Ce mois-ci</div>
+    <div id="stats-month"></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="card-title">⚙️ Paramètres prestataire</div>
+    <div class="field">
+      <label>Nom / Raison sociale</label>
+      <input type="text" id="setting-driver" placeholder="Votre nom ou société" oninput="saveSetting('driver', this.value); syncFormField('f-driver', this.value)">
+    </div>
+    <div class="field">
+      <label>Adresse de la société</label>
+      <input type="text" id="setting-address" placeholder="15 rue de la Paix, 75001 Paris" oninput="saveSetting('address', this.value); syncFormField('f-address', this.value)">
+    </div>
+    <div class="field row2">
+      <div>
+        <label>N° SIREN</label>
+        <input type="text" id="setting-siren" placeholder="123 456 789" maxlength="11" oninput="saveSetting('siren', this.value); syncFormField('f-siren', this.value)">
+      </div>
+      <div>
+        <label>N° eVTC</label>
+        <input type="text" id="setting-evtc" placeholder="EVTC000000000" oninput="saveSetting('evtc', this.value); syncFormField('f-evtc', this.value)">
+      </div>
+    </div>
+    <div class="field row2">
+      <div>
+        <label>Téléphone</label>
+        <input type="tel" id="setting-phone" placeholder="+33 6 00 00 00 00" oninput="saveSetting('driverPhone', this.value); syncFormField('f-driver-phone', this.value)">
+      </div>
+      <div>
+        <label>Email</label>
+        <input type="email" id="setting-email" placeholder="contact@vtc.fr" oninput="saveSetting('driverEmail', this.value); syncFormField('f-driver-email', this.value)">
+      </div>
+    </div>
+    <div class="field row2">
+      <div>
+        <label>Immatriculation</label>
+        <input type="text" id="setting-plate" placeholder="AB-123-CD" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase(); saveSetting('plate', this.value); syncFormField('f-plate', this.value)">
+      </div>
+      <div>
+        <label>Modèle véhicule</label>
+        <input type="text" id="setting-carmodel" placeholder="Tesla Model 3" oninput="saveSetting('carmodel', this.value); syncFormField('f-carmodel', this.value)">
+      </div>
+    </div>
+    <div class="field">
+      <label>Préfixe numéro de bon</label>
+      <input type="text" id="setting-prefix" placeholder="VTC" oninput="saveSetting('prefix', this.value)">
+    </div>
+    <button class="btn-submit" style="background:var(--danger);color:#fff;margin-top:20px" onclick="if(confirm('Supprimer TOUS les bons ?')) clearAll()">🗑️ Effacer tous les bons</button>
+  </div>
+</div>
+
+<!-- ═══════ VUE DÉTAIL ═══════ -->
+<div id="view-detail">
+  <div class="detail-header">
+    <button class="btn-back" id="btn-back">← Retour</button>
+    <span style="font-family:'DM Serif Display',serif;font-size:1rem;color:var(--accent)">Bon de réservation</span>
+  </div>
+  <div class="detail-body" id="detail-body"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── STATE ───
+let bons = JSON.parse(localStorage.getItem('vtc_bons') || '[]');
+let settings = JSON.parse(localStorage.getItem('vtc_settings') || '{"driver":"","address":"","driverPhone":"","driverEmail":"","siren":"","evtc":"","plate":"","carmodel":"","prefix":"VTC"}');
+let selectedVehicle = 'Berline';
+let currentBonId = null;
+
+// ─── INIT ───
+window.onload = () => {
+  setTodayDefaults();
+  updateBonNumber();
+  renderList();
+  renderStats();
+  loadSettings();
+  document.getElementById('btn-back').addEventListener('click', () => {
+    document.getElementById('view-detail').classList.remove('active');
+  });
+};
+
+function setTodayDefaults() {
+  const now = new Date();
+  const today = now.toISOString().split('T')[0];
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const hm = `${h}:${m}`;
+  document.getElementById('f-date').value = today;
+  document.getElementById('f-time').value = hm;
+  document.getElementById('f-bookdate').value = today;
+  document.getElementById('f-booktime').value = hm;
+}
+
+function loadSettings() {
+  document.getElementById('setting-driver').value = settings.driver || '';
+  document.getElementById('setting-address').value = settings.address || '';
+  document.getElementById('setting-phone').value = settings.driverPhone || '';
+  document.getElementById('setting-email').value = settings.driverEmail || '';
+  document.getElementById('setting-siren').value = settings.siren || '';
+  document.getElementById('setting-evtc').value = settings.evtc || '';
+  document.getElementById('setting-plate').value = settings.plate || '';
+  document.getElementById('setting-carmodel').value = settings.carmodel || '';
+  document.getElementById('setting-prefix').value = settings.prefix || 'VTC';
+  if (settings.driver) document.getElementById('f-driver').value = settings.driver;
+  if (settings.address) document.getElementById('f-address').value = settings.address;
+  if (settings.driverPhone) document.getElementById('f-driver-phone').value = settings.driverPhone;
+  if (settings.driverEmail) document.getElementById('f-driver-email').value = settings.driverEmail;
+  if (settings.siren) document.getElementById('f-siren').value = settings.siren;
+  if (settings.evtc) document.getElementById('f-evtc').value = settings.evtc;
+  if (settings.plate) document.getElementById('f-plate').value = settings.plate;
+  if (settings.carmodel) document.getElementById('f-carmodel').value = settings.carmodel;
+}
+
+function saveSetting(key, val) {
+  settings[key] = val;
+  localStorage.setItem('vtc_settings', JSON.stringify(settings));
+  if (key === 'prefix' || key === 'driver') updateBonNumber();
+}
+
+// ─── TABS ───
+function showTab(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if (name === 'list') renderList();
+  if (name === 'stats') renderStats();
+}
+
+// ─── BON NUMBER ───
+function getNextNum() {
+  const year = new Date().getFullYear();
+  const prefix = (settings.prefix || 'VTC').toUpperCase();
+  const count = bons.filter(b => b.number && b.number.includes(String(year))).length + 1;
+  return `${prefix}-${year}-${String(count).padStart(3,'0')}`;
+}
+function updateBonNumber() {
+  document.getElementById('bon-number-display').textContent = getNextNum();
+}
+
+// ─── VEHICLE ───
+function selectVehicle(btn, name) {
+  document.querySelectorAll('.tarif-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedVehicle = name;
+}
+
+// ─── AUTO-SAVE PRESTATAIRE ───
+let prestataireSaveTimer = null;
+function autoSavePrestataire() {
+  clearTimeout(prestataireSaveTimer);
+  prestataireSaveTimer = setTimeout(() => {
+    settings.driver = document.getElementById('f-driver').value.trim();
+    settings.address = document.getElementById('f-address').value.trim();
+    settings.driverPhone = document.getElementById('f-driver-phone').value.trim();
+    settings.driverEmail = document.getElementById('f-driver-email').value.trim();
+    settings.siren = document.getElementById('f-siren').value.trim();
+    settings.evtc = document.getElementById('f-evtc').value.trim();
+    settings.plate = document.getElementById('f-plate').value.trim();
+    settings.carmodel = document.getElementById('f-carmodel').value.trim();
+    localStorage.setItem('vtc_settings', JSON.stringify(settings));
+    // Sync settings panel
+    document.getElementById('setting-driver').value = settings.driver;
+    document.getElementById('setting-address').value = settings.address;
+    document.getElementById('setting-phone').value = settings.driverPhone;
+    document.getElementById('setting-email').value = settings.driverEmail;
+    document.getElementById('setting-siren').value = settings.siren;
+    document.getElementById('setting-evtc').value = settings.evtc;
+    document.getElementById('setting-plate').value = settings.plate;
+    document.getElementById('setting-carmodel').value = settings.carmodel;
+    const hint = document.getElementById('prestataire-hint');
+    hint.style.display = 'block';
+    setTimeout(() => hint.style.display = 'none', 2000);
+  }, 800);
+}
+
+
+function saveBon() {
+  const client = document.getElementById('f-client').value.trim();
+  const from = document.getElementById('f-from').value.trim();
+  const to = document.getElementById('f-to').value.trim();
+  const date = document.getElementById('f-date').value;
+  const price = document.getElementById('f-price').value;
+
+  if (!client || !from || !to || !date || !price) {
+    toast('⚠️ Remplissez les champs obligatoires (*)');
+    return;
+  }
+
+  const bon = {
+    id: Date.now(),
+    number: getNextNum(),
+    client,
+    phone: document.getElementById('f-phone').value.trim(),
+    email: document.getElementById('f-email').value.trim(),
+    from,
+    to,
+    date,
+    time: document.getElementById('f-time').value,
+    pax: document.getElementById('f-pax').value,
+    bags: document.getElementById('f-bags').value,
+    flight: document.getElementById('f-flight').value.trim(),
+    bookdate: document.getElementById('f-bookdate').value,
+    booktime: document.getElementById('f-booktime').value,
+    vehicle: selectedVehicle,
+    price: parseFloat(price),
+    payment: document.getElementById('f-payment').value,
+    driver: document.getElementById('f-driver').value.trim() || settings.driver,
+    address: document.getElementById('f-address').value.trim() || settings.address,
+    driverPhone: document.getElementById('f-driver-phone').value.trim() || settings.driverPhone,
+    driverEmail: document.getElementById('f-driver-email').value.trim() || settings.driverEmail,
+    siren: document.getElementById('f-siren').value.trim() || settings.siren,
+    evtc: document.getElementById('f-evtc').value.trim() || settings.evtc,
+    plate: document.getElementById('f-plate').value.trim() || settings.plate,
+    carmodel: document.getElementById('f-carmodel').value.trim() || settings.carmodel,
+    createdAt: new Date().toISOString()
+  };
+
+  bons.unshift(bon);
+  localStorage.setItem('vtc_bons', JSON.stringify(bons));
+  toast('✅ Bon créé : ' + bon.number);
+  resetForm();
+  showTab('list');
+}
+
+// ─── RESET ───
+function resetForm() {
+  ['f-client','f-phone','f-email','f-from','f-to','f-flight','f-price'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('f-pax').value = '1';
+  document.getElementById('f-bags').value = '0';
+  document.getElementById('f-payment').value = 'Espèces';
+  if (settings.driver) document.getElementById('f-driver').value = settings.driver;
+  if (settings.address) document.getElementById('f-address').value = settings.address;
+  if (settings.driverPhone) document.getElementById('f-driver-phone').value = settings.driverPhone;
+  if (settings.driverEmail) document.getElementById('f-driver-email').value = settings.driverEmail;
+  if (settings.siren) document.getElementById('f-siren').value = settings.siren;
+  if (settings.evtc) document.getElementById('f-evtc').value = settings.evtc;
+  if (settings.plate) document.getElementById('f-plate').value = settings.plate;
+  if (settings.carmodel) document.getElementById('f-carmodel').value = settings.carmodel;
+  document.querySelectorAll('.tarif-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.tarif-btn')[0].classList.add('selected');
+  selectedVehicle = 'Berline';
+  setTodayDefaults();
+  updateBonNumber();
+}
+
+// ─── LIST ───
+function renderList(filter='') {
+  const list = document.getElementById('bon-list');
+  const count = document.getElementById('list-count');
+  let filtered = bons;
+  if (filter) {
+    const q = filter.toLowerCase();
+    filtered = bons.filter(b =>
+      b.client.toLowerCase().includes(q) ||
+      b.from.toLowerCase().includes(q) ||
+      b.to.toLowerCase().includes(q) ||
+      b.number.toLowerCase().includes(q)
+    );
+  }
+  count.textContent = filtered.length;
+  if (!filtered.length) {
+    list.innerHTML = `<div class="empty-state"><div>📋</div><p>${filter ? 'Aucun résultat' : 'Aucun bon créé'}</p></div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(b => {
+    const d = new Date(b.date + 'T' + (b.time || '00:00'));
+    const dStr = d.toLocaleDateString('fr-FR', {day:'2-digit', month:'short'});
+    const tStr = b.time || '';
+    return `
+    <div class="bon-card" data-id="${b.id}">
+      <div class="bon-card-header">
+        <span class="bon-num">${b.number}</span>
+        <span style="font-size:0.75rem;color:var(--muted)">${dStr} ${tStr}</span>
+      </div>
+      <div class="bon-client">${b.client}</div>
+      <div class="bon-info">
+        <span>👥 ${b.pax} pers.</span>
+        <span>🚗 ${b.vehicle}</span>
+      </div>
+      <div class="bon-info" style="margin-top:4px">
+        <span>📍 ${b.from.substring(0,28)}…</span>
+      </div>
+      <div class="bon-price">${b.price.toFixed(2)} €</div>
+    </div>`;
+  }).join('');
+
+  // Event delegation — fonctionne sur iOS Safari
+  list.querySelectorAll('.bon-card').forEach(card => {
+    card.addEventListener('click', () => openBon(Number(card.dataset.id)));
+    card.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      openBon(Number(card.dataset.id));
+    }, { passive: false });
+  });
+}
+
+function filterBons(val) { renderList(val); }
+
+// ─── OPEN DETAIL ───
+function openBon(id) {
+  currentBonId = id;
+  const b = bons.find(x => x.id === id);
+  if (!b) return;
+  const d = new Date(b.date + 'T' + (b.time || '00:00'));
+  const dateStr = d.toLocaleDateString('fr-FR', {weekday:'long', day:'2-digit', month:'long', year:'numeric'});
+  const bookStr = b.bookdate ? new Date(b.bookdate+'T'+(b.booktime||'00:00')).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}) + (b.booktime ? ' à '+b.booktime : '') : '';
+  document.getElementById('detail-body').innerHTML = `
+    <div class="detail-num">${b.number}</div>
+    <div class="detail-card">
+      <div class="detail-card-title">🏢 Prestataire</div>
+      ${b.driver ? `<div class="detail-row"><span>Société</span><span>${b.driver}</span></div>` : ''}
+      ${b.address ? `<div class="detail-row"><span>Adresse</span><span>${b.address}</span></div>` : ''}
+      ${b.siren ? `<div class="detail-row"><span>SIREN</span><span>${b.siren}</span></div>` : ''}
+      ${b.evtc ? `<div class="detail-row"><span>N° eVTC</span><span>${b.evtc}</span></div>` : ''}
+      ${b.driverPhone ? `<div class="detail-row"><span>Tél.</span><span>${b.driverPhone}</span></div>` : ''}
+      ${b.driverEmail ? `<div class="detail-row"><span>Email</span><span>${b.driverEmail}</span></div>` : ''}
+      ${b.carmodel ? `<div class="detail-row"><span>Véhicule</span><span>${b.carmodel}</span></div>` : ''}
+      ${b.plate ? `<div class="detail-row"><span>Immatriculation</span><span>${b.plate}</span></div>` : ''}
+    </div>
+    <div class="detail-card">
+      <div class="detail-card-title">👤 Client</div>
+      <div class="detail-row"><span>Nom</span><span>${b.client}</span></div>
+      ${b.phone ? `<div class="detail-row"><span>Tél.</span><span>${b.phone}</span></div>` : ''}
+      ${b.email ? `<div class="detail-row"><span>Email</span><span>${b.email}</span></div>` : ''}
+    </div>
+    <div class="detail-card">
+      <div class="detail-card-title">📍 Trajet</div>
+      ${bookStr ? `<div class="detail-row"><span>Réservé le</span><span>${bookStr}</span></div>` : ''}
+      <div class="detail-row"><span>Date course</span><span>${dateStr}</span></div>
+      <div class="detail-row"><span>Prise en charge</span><span>${b.time || '—'}</span></div>
+      <div class="detail-row"><span>Départ</span><span>${b.from}</span></div>
+      <div class="detail-row"><span>Arrivée</span><span>${b.to}</span></div>
+      <div class="detail-row"><span>Passagers</span><span>${b.pax}</span></div>
+      <div class="detail-row"><span>Bagages</span><span>${b.bags || '0'}</span></div>
+      ${b.flight ? `<div class="detail-row"><span>Vol / Train</span><span>${b.flight}</span></div>` : ''}
+    </div>
+    <div class="detail-card">
+      <div class="detail-card-title">💶 Tarif</div>
+      <div class="detail-row"><span>Type</span><span>${b.vehicle}</span></div>
+      <div class="detail-row"><span>Paiement</span><span>${b.payment}</span></div>
+      <div class="detail-row detail-total"><span><strong>Total TTC</strong></span><span><strong>${b.price.toFixed(2)} €</strong></span></div>
+    </div>
+    <div class="detail-actions">
+      <button class="btn-action gold" onclick="shareBon()">📤 Partager</button>
+      <button class="btn-action dark" onclick="printBon()">🖨️ Imprimer</button>
+      <button class="btn-action red" onclick="deleteBon()">🗑️ Supprimer ce bon</button>
+    </div>`;
+  document.getElementById('view-detail').classList.add('active');
+  document.getElementById('view-detail').scrollTop = 0;
+}
+
+// ─── ACTIONS ───
+function deleteBon() {
+  if (!confirm('Supprimer ce bon ?')) return;
+  bons = bons.filter(x => x.id !== currentBonId);
+  localStorage.setItem('vtc_bons', JSON.stringify(bons));
+  document.getElementById('view-detail').classList.remove('active');
+  renderList();
+  toast('🗑️ Bon supprimé');
+}
+
+function printBon() {
+  const b = bons.find(x => x.id === currentBonId);
+  if (!b) return;
+  const d = new Date(b.date + 'T' + (b.time || '00:00'));
+  const dateStr = d.toLocaleDateString('fr-FR', {weekday:'long', day:'2-digit', month:'long', year:'numeric'});
+  const bookStr = b.bookdate ? new Date(b.bookdate+'T'+(b.booktime||'00:00')).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}) + (b.booktime ? ' à '+b.booktime : '') : '';
+  const w = window.open('', '_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${b.number}</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:'DM Sans',sans-serif;padding:30px;color:#111;font-size:13px;max-width:600px;margin:0 auto}
+    h1{font-family:'DM Serif Display',serif;text-align:center;font-size:22px;margin-bottom:4px}
+    .num{text-align:center;font-family:'DM Mono',monospace;color:#666;font-size:11px;margin-bottom:4px}
+    .driver{text-align:center;font-size:11px;color:#444;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid #111}
+    h4{text-transform:uppercase;font-size:10px;letter-spacing:.08em;color:#888;border-bottom:1px solid #eee;padding-bottom:4px;margin:14px 0 6px}
+    .row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #f5f5f5}
+    .row span:first-child{color:#555}
+    .row span:last-child{font-weight:600}
+    .total{border-top:2px solid #111!important;padding-top:8px;margin-top:4px;font-size:15px}
+    .sigs{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:40px;padding-top:10px;border-top:1px solid #ccc}
+    .sig{text-align:center;font-size:11px;color:#888;padding-top:50px;border-top:1px solid #999;margin-top:10px}
+    @media print{button{display:none}}
+  </style></head><body>
+  <h1>🚗 BON DE RÉSERVATION VTC</h1>
+  <div class="num">${b.number} — Émis le ${new Date(b.createdAt).toLocaleDateString('fr-FR')}</div>
+  <div class="driver">${b.driver||''}${b.address?' — '+b.address:''}${b.siren?' · SIREN : '+b.siren:''}${b.evtc?' · eVTC : '+b.evtc:''}<br>${b.driverPhone||''}${b.driverEmail?' · '+b.driverEmail:''}</div>
+  <h4>👤 Client</h4>
+  <div class="row"><span>Nom</span><span>${b.client}</span></div>
+  ${b.phone?`<div class="row"><span>Tél.</span><span>${b.phone}</span></div>`:''}
+  ${b.email?`<div class="row"><span>Email</span><span>${b.email}</span></div>`:''}
+  <h4>📍 Trajet</h4>
+  ${bookStr?`<div class="row"><span>Réservé le</span><span>${bookStr}</span></div>`:''}
+  <div class="row"><span>Date course</span><span>${dateStr}</span></div>
+  <div class="row"><span>Prise en charge</span><span>${b.time||'—'}</span></div>
+  <div class="row"><span>Départ</span><span>${b.from}</span></div>
+  <div class="row"><span>Arrivée</span><span>${b.to}</span></div>
+  <div class="row"><span>Passagers</span><span>${b.pax}</span></div>
+  <div class="row"><span>Bagages</span><span>${b.bags||'0'}</span></div>
+  ${b.flight?`<div class="row"><span>Vol / Train</span><span>${b.flight}</span></div>`:''}
+  <h4>🚗 Véhicule & Tarif</h4>
+  <div class="row"><span>Type</span><span>${b.vehicle}</span></div>
+  ${b.carmodel?`<div class="row"><span>Modèle</span><span>${b.carmodel}</span></div>`:''}
+  ${b.plate?`<div class="row"><span>Immatriculation</span><span>${b.plate}</span></div>`:''}
+  <div class="row"><span>Paiement</span><span>${b.payment}</span></div>
+  <div class="row total"><span><strong>Total TTC</strong></span><span><strong>${b.price.toFixed(2)} €</strong></span></div>
+  <div class="sigs"><div class="sig">Signature chauffeur</div><div class="sig">Signature client</div></div>
+  <script>window.print();<\/script>
+  </body></html>`);
+  w.document.close();
+}
+
+async function shareBon() {
+  const b = bons.find(x => x.id === currentBonId);
+  if (!b) return;
+  const d = new Date(b.date + 'T' + (b.time || '00:00'));
+  const txt = `📋 BON DE RÉSERVATION ${b.number}
+🏢 ${b.driver || 'VTC'}${b.address ? '\n📮 ' + b.address : ''}${b.siren ? ' · SIREN : ' + b.siren : ''}${b.evtc ? ' · eVTC : ' + b.evtc : ''}
+🚗 ${b.vehicle}${b.carmodel ? ' ' + b.carmodel : ''}${b.plate ? ' · ' + b.plate : ''}
+👤 ${b.client}${b.phone ? ' · ' + b.phone : ''}
+${b.bookdate ? '📝 Réservé le ' + new Date(b.bookdate+'T'+(b.booktime||'00:00')).toLocaleDateString('fr-FR') + (b.booktime ? ' à ' + b.booktime : '') + '\n' : ''}📅 Course le ${d.toLocaleDateString('fr-FR')} à ${b.time || '—'}
+📍 Départ : ${b.from}
+🏁 Arrivée : ${b.to}
+👥 ${b.pax} passager(s)
+💶 ${b.price.toFixed(2)} € (${b.payment})
+${b.flight ? '✈️ ' + b.flight + '\n' : ''}─ ${b.driverPhone ? b.driverPhone : ''}${b.driverEmail ? ' · ' + b.driverEmail : ''}`;
+
+  if (navigator.share) {
+    try { await navigator.share({ title: b.number, text: txt }); }
+    catch(e) { copyToClipboard(txt); }
+  } else { copyToClipboard(txt); }
+}
+
+function copyToClipboard(txt) {
+  navigator.clipboard.writeText(txt).then(() => toast('📋 Copié dans le presse-papier'));
+}
+
+// ─── STATS ───
+function renderStats() {
+  const total = bons.length;
+  const ca = bons.reduce((a,b) => a + b.price, 0);
+  const avg = total ? ca / total : 0;
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('s-ca').textContent = ca.toFixed(0) + '€';
+  document.getElementById('s-confirmed').textContent = total > 0 ? (ca / total).toFixed(0) + '€' : '0€';
+  document.getElementById('s-avg').textContent = avg.toFixed(0) + '€';
+
+  const now = new Date();
+  const monthBons = bons.filter(b => {
+    const d = new Date(b.date);
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  });
+  const monthCA = monthBons.reduce((a,b) => a + b.price, 0);
+  document.getElementById('stats-month').innerHTML = `
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
+      <span style="color:var(--muted)">Bons ce mois</span><strong>${monthBons.length}</strong>
+    </div>
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
+      <span style="color:var(--muted)">CA ce mois</span><strong style="color:var(--accent2)">${monthCA.toFixed(2)} €</strong>
+    </div>
+    <div style="display:flex;justify-content:space-between;padding:6px 0">
+      <span style="color:var(--muted)">Panier moyen ce mois</span><strong>${monthBons.length ? (monthCA/monthBons.length).toFixed(0) + ' €' : '—'}</strong>
+    </div>`;
+}
+
+function syncFormField(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val;
+}
+
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function clearAll() {
+  bons = [];
+  localStorage.setItem('vtc_bons', JSON.stringify(bons));
+  renderList(); renderStats(); updateBonNumber();
+  toast('🗑️ Tous les bons supprimés');
+}
+</script>
+</body>
+</html>
